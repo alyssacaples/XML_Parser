@@ -4,7 +4,12 @@ import cv2
 import matplotlib.pyplot as plt
 import ast
 
-tree = ET.parse('annotations.xml')
+# change file names here
+xml_parse = '3_0_4_xml.xml'
+img_filename = 'Snap_Speed3_0_4.jpg'
+output_filename = 'annotated_3_0_4.jpg'
+
+tree = ET.parse(xml_parse)
 root = tree.getroot()
 
 def parse_line(line):
@@ -12,12 +17,32 @@ def parse_line(line):
     xy = []
     for each in individ:
         xy.append(np.array(each.split(','), dtype=np.float32))
-        # point = []
-        # for y in each.split(','):
-        #     point.append(np.float64(y))
-        # xy.append(np.array(point))
 
     return np.array(xy)
+
+
+def contour_identifier(image, output_img, output_color, lower, upper):
+    #image = cv2.imread(img)
+    lower = np.array(lower, dtype = "uint8")
+    upper = np.array(upper, dtype = "uint8")
+    
+    mask = cv2.inRange(image, lower, upper)
+
+    points = []
+    height, width = mask.shape
+    for x in range(height):
+        for y in range(width):
+            if(mask[x][y] == 255):
+                points.append((y, x))
+
+    points = np.array(points, dtype=object)
+
+    for shape in points:
+        #print(shape)
+        shape = shape.reshape(-1,1,2)
+        cv2.fillPoly(output_img, np.int32([shape]), color=(0, 255, 0))
+    
+    return output_img
 
 f1_label = []
 f2_label = []
@@ -47,39 +72,31 @@ f2_label = np.array(f2_label, dtype=object)
 f3_label = np.array(f3_label, dtype=object)
 f4_label = np.array(f4_label, dtype=object)
 
+img = cv2.imread(img_filename)
+cpy_img = img.copy()
 
+all_fill = np.array([[0, 0], [0,1200], [1200, 1200], [1200, 0]])
+cv2.fillPoly(img,np.int32([all_fill]),color=(255, 0, 0) ) # fill everything w f1 color ebcause it is the background
 
+# for shape in f1_label:
 
-
-#print(np.shape(f4_label))
-
-img = cv2.imread('Snap_Speed3_0_0.jpg')
-
-for shape in f1_label:
-
-    cv2.fillPoly(img, np.int32([shape]), color=(255, 0, 0))
+#     cv2.fillPoly(img, np.int32([shape]), color=(255, 0, 0))
 
 for shape in f2_label:
-
     cv2.fillPoly(img, np.int32([shape]), color=(255, 255, 0))
+
+lower = [155, 155, 155]
+upper = [255, 255, 255]
+
+#img = contour_identifier(cpy_img, img, (0, 255, 0), lower, upper)
 
 for shape in f3_label:
 
-    cv2.fillPoly(img, np.int32([shape]), color=(0, 255, 0))
+    cv2.fillPoly(img, np.int32([shape]), color=(0, 255, 0)) #white parts
 
 for shape in f4_label:
 
     cv2.fillPoly(img, np.int32([shape]), color=(255, 0, 255))
-
-#points = np.array([[160, 130], [350, 130], [250, 300]])
-
-# cv2.fillPoly(img, f1_label, color=(255, 0, 0))
-
-# cv2.fillPoly(img, np.int32([f2_label]), color=(255, 255, 0))
-
-# cv2.fillPoly(img, np.int32([f3_label]), color=(0, 255, 0))
-
-# cv2.fillPoly(img, np.int32([f4_label]), color=(255, 0, 255))
 
 cv2.imshow("filled polygon", img)
 
@@ -90,7 +107,5 @@ cv2.waitKey(0)
 #Closing all open windows
 cv2.destroyAllWindows()
 
-filename = 'anno_img.jpg'
-
-cv2.imwrite(filename, img)
+cv2.imwrite(output_filename, img)
 

@@ -1,0 +1,10 @@
+
+For instance, the dark grey is the background (feature 1). This is also called the silicon substrate.
+
+The lighter grey structures are called the doped regions (feature 2). You can see an example of them in the 5kv folder.
+
+The bright white structures are called metal traces (feature 3). You can see an example of them in the 5kv folder for via plus poly.
+
+There are dimmer white circles too (feature 4). They are the last features.
+
+Feature 3 and 4 are on different layers. Feature 3 is closer to the top/imaging plane (hence the brightness). The dimmer circles are on the layer below. Its a 3D structure.  You have to annotate each feature with a different label.
